@@ -1,0 +1,30 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+ENV/
+.env.*
+*.db
+*.sqlite3
+.idea/
+.vscode/
+.DS_Store
+*.log
+*.bak
+*.swp
+
+# Docker build cache
+**/.dockerignore
+**/Dockerfile
+
+# Test & coverage
+htmlcov/
+.coverage
+.tox/
+.pytest_cache/
+
+# OS files
+Thumbs.db
+

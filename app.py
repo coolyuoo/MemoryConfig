@@ -42,7 +42,11 @@ def mem_add(mb: int = Query(100), chunk: int = Query(CHUNK_MB_DEFAULT)):
     with _mem_lock:
         _chunks.append(blocks)
         total = _current_mb()
-    return {"ok": True, "added_mb": mb, "chunk_mb": chunk, "total_mb": total}
+    return {"ok": True,
+            "added_mb": mb,
+            "chunk_mb": chunk,
+            "total_mb": total
+            }
 
 @app.get("/mem/set")
 def mem_set(mb: int = Query(0)):
