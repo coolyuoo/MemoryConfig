@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, Query
 from fastapi.responses import JSONResponse
 import threading
+import uvicorn
 
 app = FastAPI()
 
@@ -48,31 +49,6 @@ def mem_add(mb: int = Query(100), chunk: int = Query(CHUNK_MB_DEFAULT)):
             "total_mb": total
             }
 
-@app.get("/mem/set")
-def mem_set(mb: int = Query(0)):
-    """設定目標總量：/mem/set?mb=600"""
-    target = mb
-    if target < 0:
-        return JSONResponse(content={"error": "mb 必須 >= 0"}, status_code=400)
-    with _mem_lock:
-        curr = _current_mb()
-        if target == curr:
-            return {"ok": True, "total_mb": curr, "note": "已達目標"}
-        elif target > curr:
-            blocks = _alloc_mb(target - curr, CHUNK_MB_DEFAULT)
-            _chunks.append(blocks)
-        else:
-            # 釋放到接近 target：從最後一組開始丟
-            to_free = curr - target
-            while to_free > 0 and _chunks:
-                group = _chunks[-1]
-                while group and to_free > 0:
-                    b = group.pop()
-                    to_free -= len(b) // (1024 * 1024)
-                if not group:
-                    _chunks.pop()
-        total = _current_mb()
-    return {"ok": True, "total_mb": total}
 
 @app.get("/mem/free")
 def mem_free(mb: int = Query(0)):
@@ -103,4 +79,5 @@ def mem_clear():
 def health():
     return "ok"
 
-# FastAPI 啟動不需 __main__，請用 uvicorn app:app --host 0.0.0.0 --port 8000
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
